@@ -10,6 +10,7 @@ var blackSquareGrey = '#696969';
 var squareToHighlight = null; // Inicializacion de Highlights
 var lastMoveSource = null; // Objetivos de Highlighteo
 var lastMoveTarget = null;
+var juegoIniciado = false;
 
 // Funciones de Movimientos y Estilo
 function highlights(source,target){
@@ -46,6 +47,7 @@ function removeHighlights (color) {
 let hardSaltoOnChange = false;
 
 function onDrop (source, target) {
+  juegoIniciado = true; // Cambiamos el estado de juego a iniciado
   removeGreySquares();
   let prom = 'q'; // default promote to a queen
   const posicion = board.position();
@@ -60,6 +62,7 @@ function onDrop (source, target) {
         console.log("activada coronacion");
         manejarPromocion(source, target,function(prom){
         onDropFinish(source, target, prom); // Llamamos a onDropFinish después de elegir la pieza
+        board.position(game.fen());
         });
         return;
       }
@@ -75,7 +78,6 @@ function onDrop (source, target) {
 function manejarPromocion(source, target, callback){
   showPromotionMenu(function(piezaElegida){ // Abrimos el menú de selección
     let prom = piezaElegida || 'q';
-    //saltoOnChange = false;
     callback(prom);
   });
 }
@@ -93,7 +95,6 @@ function onDropFinish(source,target,prom){
     return 'snapback';
   }
   hardSaltoOnChange = false;
-  board.position(game.fen());
 
 
   // Actualizar estado del último movimiento
@@ -306,23 +307,26 @@ function cargarGame(){
     console.log(game.turn());
     removeHighlights('black');
     removeHighlights('white');
+    juegoIniciado = true; // Indicamos que es una partida comenzada
   }else{
     alert("No se ha encontrado la partida");
   }
 }
 
 $botonCargarGame.on("click",() => {
-  Swal.fire({
-    title: "La partida actual se perdera si no ha sido guardada previamente",
-    showCancelButton: true,
-    icon: "warning",
-    confirmButtonText: "Continuar",
-    cancelButtonText: "Atras"
-  }).then((result) => {
-    if (result.isConfirmed){
-      cargarGame();
-    }
-  })
+  if(juegoIniciado === true){
+    Swal.fire({
+      title: "La partida actual se perdera si no ha sido guardada previamente",
+      showCancelButton: true,
+      icon: "warning",
+      confirmButtonText: "Continuar",
+      cancelButtonText: "Atras"
+    }).then((result) => {
+      if (result.isConfirmed){
+        cargarGame();
+      }
+    })
+  }else{cargarGame();}
 });
 
 // Funcion activada cada vez que se detecta un cambio en el tablero
@@ -558,6 +562,16 @@ async function mejorJugada (){
 $botonMejorJugada.on("click",() => {
   mejorJugada ();
 });
+
+// Juego vs Stockfish
+
+var modoVs;
+
+function stockfishMove(modoVs, turno){
+  if(modoVs){
+
+  }
+}
 
 // Configuracion del board inicializado con posicion y funciones a acatar
 var config = {
