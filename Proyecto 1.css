@@ -1,0 +1,52 @@
+.flex-parent{
+  display: flex;
+  justify-content: flex-start;
+  gap: 1vw;
+}
+#myBoard{
+  width: 35vw;
+  height: 35vw;
+}
+#chat-supra{
+  display: flex;
+  width: 35vw;
+  height: 35vw;
+  flex-direction: column;
+}
+#buttons-supra{
+  display: flex;
+  width: 35vw;
+  height: 1vw;
+  justify-content: flex-start;
+  gap: 33vw;
+}
+#chat{
+  display: flex;
+  width: 34vw;
+  height: 34vw;
+  background-color: #08080b;
+  width: 100%;
+  height: 34vw;
+  color: #ffffff;
+  padding: 1vw; /* Espaciado interno */
+  box-sizing: border-box; /* Incluir el padding en el tamaño total */
+  overflow-y: auto; /* Añadir barra de desplazamiento vertical si el contenido excede la altura */
+  white-space: pre-wrap; /* Permite saltos de línea */
+  word-wrap: break-word; /* Permite que las palabras largas se dividan al final de la línea */
+  flex-direction: column;
+  justify-content: flex-start; /* Alinea el contenido al principio */
+  align-items: flex-start; /* Alinea el contenido desde la izquierda */
+  font-family: "Courier New", Courier, monospace; /* Fuente de estilo consola */
+  font-size: 1vw; /* Tamaño del texto */
+}
+.reverse-forward{
+  width: 1vw;
+  height: 1vw;
+}
+
+.highlight-black {
+  box-shadow: inset 0 0 3px 3px blue;
+}
+.highlight-white {
+  box-shadow: inset 0 0 3px 3px yellow;
+}

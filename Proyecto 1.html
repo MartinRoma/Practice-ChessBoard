@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+
+    <link rel="stylesheet"
+      href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css"
+      integrity="sha384-q94+BZtLrkL1/ohfjR8c6L+A6qzNH9R2hBLwyoAfu3i/WCvQjzL2RQJ3uNHDISdU"
+      crossorigin="anonymous"><!-- Carga de css chessboard -->
+
+    <link rel="stylesheet"
+      href="Proyecto 1.css"><!-- Carga de css propio -->
+    <title>Chess Proyect</title>
+  </head>
+  <body>
+
+    <div class="flex-parent">
+      <div id="myBoard"></div>
+      <div id="chat-supra">
+        <div id="buttons-supra">
+          <button type="button" class="reverse-forward" id="botonAtras">←</button>
+          <button type="button" class="reverse-forward" id="botonAdelante">→</button>
+        </div>
+        <div id="chat"></div>
+      </div>
+    </div>
+
+    <button type="button" name="button" id="botonGuardado">Guardar</button>
+    <button type="button" name="button" id="botonGuardadoComo">Guardar Como</button>
+    <button type="button" name="button" id="botonCargarGame">Cargar</button>
+    <button type="button" name="button" id="botonMejorJugada">Mejor Jugada</button>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"
+      integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2"
+      crossorigin="anonymous"></script><!-- Carga de JQuery para chessboard -->
+
+    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"
+      integrity="sha384-8Vi8VHwn3vjQ9eUHUxex3JSN/NFqUg3QbPyX8kWyb93+8AC/pPWTzj+nHtbC5bxD"
+      crossorigin="anonymous"></script><!-- Carga de chessboard -->
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script><!-- Carga de sweetalerts2 -->
+
+    <script type="module" src="config.js"></script> <!-- Carga de archivo con configs no visibles -->
+    <script type="module" src="Proyecto 1.js"></script>
+  </body>
+</html>
