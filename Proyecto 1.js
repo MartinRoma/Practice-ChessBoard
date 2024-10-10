@@ -47,6 +47,7 @@ function removeHighlights (color) {
 let hardSaltoOnChange = false;
 
 function onDrop (source, target) {
+
   juegoIniciado = true; // Cambiamos el estado de juego a iniciado
   removeGreySquares();
   let prom = 'q'; // default promote to a queen
@@ -72,6 +73,8 @@ function onDrop (source, target) {
   if (move !== 'snapback' && (move.flags.includes('k') || move.flags.includes('q') || move.flags.includes('p') || move.flags.includes('e'))){
     saltoOnChange = true; // Si es un movimiento especial, activar la bandera de salto
   }
+  console.log(game.turn());
+  stockfishMove(); // Analizamos si esta activo el juego vs ccomputadora y ejeccuta el movimiento
 }
 
 // Manejo de la promocion
@@ -110,7 +113,7 @@ function onDropFinish(source,target,prom){
 
 // Función para mostrar el menú de promoción
 
-function showPromotionMenu(callback){ // Arreglar
+function showPromotionMenu(callback){
   let turn = game.turn(); // Devolvera 'w' o 'b'
   let rutaImgQ = `img/chesspieces/wikipedia/${turn}Q.png`;
   let rutaImgR = `img/chesspieces/wikipedia/${turn}R.png`;
@@ -138,8 +141,6 @@ function showPromotionMenu(callback){ // Arreglar
       </div>`,
     didOpen: () => {
       console.log("Menú abierto, esperando elección");
-
-      // Asegurar que los eventos de clic se registren correctamente después de que el diálogo se renderice
       document.querySelector('#option1').addEventListener('click', () => {
         console.log("Reina seleccionada");
         callback('q');
@@ -148,17 +149,17 @@ function showPromotionMenu(callback){ // Arreglar
       document.querySelector('#option2').addEventListener('click', () => {
         console.log("Torre seleccionada");
         callback('r');
-        Swal.close(); // Cierra el diálogo después de seleccionar
+        Swal.close();
       });
       document.querySelector('#option3').addEventListener('click', () => {
         console.log("Caballo seleccionado");
         callback('n');
-        Swal.close(); // Cierra el diálogo después de seleccionar
+        Swal.close();
       });
       document.querySelector('#option4').addEventListener('click', () => {
         console.log("Alfil seleccionado");
         callback('b');
-        Swal.close(); // Cierra el diálogo después de seleccionar
+        Swal.close();
       });
     }
   });
@@ -565,12 +566,125 @@ $botonMejorJugada.on("click",() => {
 
 // Juego vs Stockfish
 
-var modoVs;
+var $botonVsStockfish = $('#botonVsStockfish');
 
-function stockfishMove(modoVs, turno){
+$botonVsStockfish.on("click",() => {
+  modoVs = !modoVs;
+  stockfishMove();
+});
+
+var modoVs = false;
+var eleccionColorMotor = null;
+var eleccionColorUsuario = null;
+
+async function stockfishMove(){
+  let configVs;
   if(modoVs){
+    if(juegoIniciado){
+      if(!eleccionColorMotor){ // Si no se ha hecho eleccion de color tanto por eleccion o por turno se realiza
+        if(game.turn() === 'w'){ /* Si el turno en el que se apreta el toggle es de las blancas se tomara
+          como que el usuario eligio las negras y el motor se le dara blancas */
+          eleccionColorUsuario = 'b';
+          eleccionColorMotor = 'w';
+          let position = board.fen();
+          configVs = {
+            position: position,
+            pieceTheme: 'img/chesspieces/wikipedia/{piece}.png',
+            draggable: true,
+            onDragStart: onDragStart,
+            onDrop: onDrop,
+            onMouseoutSquare: onMouseoutSquare,
+            onMouseoverSquare: onMouseoverSquare,
+            onChange: onChange,
+            onSnapEnd: onSnapEnd,
+            orientation: 'black'
+          }
+          board = Chessboard('myBoard', configVs);
+        }else{
+          eleccionColorUsuario = 'w';
+          eleccionColorMotor = 'b';
+        }
+      }
+      if(game.turn() === eleccionColorMotor){
+        mejorJugada ();
+        return;
+      }else{return;}
+    }else{
+      eleccionColorUsuario = await menuEleccionWBR();
+      if(eleccionColorUsuario === 'b'){
+        eleccionColorMotor = 'w';
+        configVs = {
+          position: 'start',
+          pieceTheme: 'img/chesspieces/wikipedia/{piece}.png',
+          draggable: true,
+          onDragStart: onDragStart,
+          onDrop: onDrop,
+          onMouseoutSquare: onMouseoutSquare,
+          onMouseoverSquare: onMouseoverSquare,
+          onChange: onChange,
+          onSnapEnd: onSnapEnd,
+          orientation: 'black'
+        }
+        board = Chessboard('myBoard', configVs);
+      }else{
+        eleccionColorMotor = 'b';
+        configVs = config;
+        board = Chessboard('myBoard', configVs);
+      }
+      juegoIniciado = true;
+      stockfishMove();
+    }
+  }else{return;}
+}
 
-  }
+async function menuEleccionWBR(){ // Menu de seleccion de color en inicio de partida vs Motor
+  let rutaImgwK = `img/chesspieces/wikipedia/wK.png`;
+  let rutaImgbK = `img/chesspieces/wikipedia/bK.png`;
+  let rutaImgrK = `img/chesspieces/wikipedia/wbK.svg`;
+  return new Promise((resolve) =>{
+    Swal.fire({
+      title: 'Elige una opción',
+      text: 'Selecciona una de las imágenes:',
+      showCancelButton: false,
+      showConfirmButton: false,
+      html:
+        `<div style="display: flex; justify-content: space-between;">
+          <button id="option1" style="border: none; background: none;">
+            <img src="${rutaImgwK}" alt="Reina" width="100" height="100">
+          </button>
+          <button id="option2" style="border: none; background: none;">
+            <img src="${rutaImgrK}" alt="Torre" width="100" height="100">
+          </button>
+          <button id="option3" style="border: none; background: none;">
+            <img src="${rutaImgbK}" alt="Caballo" width="100" height="100">
+          </button>
+        </div>`,
+      didOpen: () => {
+        console.log("Menú abierto, esperando elección");
+        document.querySelector('#option1').addEventListener('click', () => {
+          console.log("Blancas seleccionadas");
+          resolve ('w');
+          Swal.close(); // Cierra el diálogo después de seleccionar
+        });
+        document.querySelector('#option2').addEventListener('click', () => {
+          console.log("Random seleccionadas");
+          if(Math.round(Math.random())){ /* Da un numero "random" entre 0 y 1 y lo redondea, si es mas cercano a 0 son
+            blancas si no negras */
+            resolve ('w');
+            Swal.close();
+          }else{
+            resolve ('b');
+            Swal.close();
+          }
+        });
+        document.querySelector('#option3').addEventListener('click', () => {
+          console.log("Negras seleccionadas");
+          resolve ('b');
+          Swal.close();
+        });
+      }
+    });
+  })
 }
 
 // Configuracion del board inicializado con posicion y funciones a acatar
