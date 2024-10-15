@@ -75,6 +75,7 @@ function onDrop (source, target) {
   }
   console.log(game.turn());
   stockfishMove(); // Analizamos si esta activo el juego vs ccomputadora y ejeccuta el movimiento
+  autoRotacion(); // Analizamos si esta activa la rotacion automatica
 }
 
 // Manejo de la promocion
@@ -381,9 +382,14 @@ function onChange (oldPos, newPos){
 
 // Funcion para volver atras llevando al turno anterior
 function volverAtras (){
+  console.log(turnoActual);
   if (turnoActual > 0){
+    console.log("Entro aqui");
+    console.log(partidaActual[turnoActual - 1].fen);
     game = new Chess(partidaActual[turnoActual - 1].fen);
     board.position(partidaActual[turnoActual - 1].fen);
+    autoRotacion();
+    saltoOnChange = false;
   }
 }
 
@@ -396,6 +402,8 @@ function irAdelante (){
   if(turnoActual < partidaActual.length - 1){
     game = new Chess(partidaActual[turnoActual + 1].fen);
     board.position(partidaActual[turnoActual + 1].fen);
+    autoRotacion();
+    saltoOnChange = false;
   }
 };
 
@@ -478,6 +486,7 @@ getBestMoveLichess('rnbqkb1r/pppppppp/5n2/8/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2
 
 async function postBestMoveChessAPI(fen, attempt){
   console.log("Chess-API activaction");
+  console.log(fen);
   try{
     const url = 'https://chess-api.com/v1';
     const response = await fetch(url, {
@@ -492,15 +501,22 @@ async function postBestMoveChessAPI(fen, attempt){
     });
     if (response.ok){
       const data = await response.json();
-      // console.log('Respuesta completa de la API:', data);
-      console.log('La mejor jugada de Chess-API es:', data.move);
-      return data.move
+      console.log('Respuesta completa de la API:', data);
+      if(data.error){
+        attempt ++; // Aumentamos el contador de llamadas
+        console.log("Attempts: " + attempt);
+        return getBestMoveLichess(cleanFenForAPI(fen), attempt); // Limpiamos el en passant e intentamos devuelta
+      }else{
+        console.log('La mejor jugada de Chess-API es:', data.move);
+        return data.move
+      }
     }else{
       const errorText = await response.text();
       console.log(game.fen());
       console.error('Error en la solicitud a Chess-API:', response.status, response.statusText, errorText);
       attempt ++; // Aumentamos el contador de llamadas
-      return getBestMoveLichess(cleanFenForAPI(fen), attempt); // Limpiamos el en passant e intentamos devuelta
+      console.log("Attempts: " + attempt);
+      return getBestMoveLichess(fen, attempt); // Intentamos devuelta
     }
   }catch (error){
     console.error('Hubo un error al realizar la solicitud a Chess-API:', error); // Este bloque caza cualquier otro error
@@ -685,6 +701,39 @@ async function menuEleccionWBR(){ // Menu de seleccion de color en inicio de par
       }
     });
   })
+}
+
+// Rotacion automatica
+
+var $botonRotacion = $('#botonRotacion');
+var rotacion = false;
+
+$botonRotacion.on("click",() => {
+  rotacion = !rotacion;
+  autoRotacion();
+});
+
+function autoRotacion(){
+  if(rotacion && !modoVs){
+    let posicion = board.fen();
+    let configRotacion = {
+      position: posicion,
+      pieceTheme: 'img/chesspieces/wikipedia/{piece}.png',
+      draggable: true,
+      onDragStart: onDragStart,
+      onDrop: onDrop,
+      onMouseoutSquare: onMouseoutSquare,
+      onMouseoverSquare: onMouseoverSquare,
+      onChange: onChange,
+      onSnapEnd: onSnapEnd,
+      orientation: 'black'
+    }
+    if(game.turn() === 'w'){
+      configRotacion.orientation = 'white';
+    }
+    board = Chessboard('myBoard', configRotacion);
+    saltoOnChange = true;
+  }
 }
 
 // Configuracion del board inicializado con posicion y funciones a acatar
