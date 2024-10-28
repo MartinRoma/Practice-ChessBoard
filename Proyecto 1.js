@@ -269,7 +269,7 @@ function cambiarGuardado(array,booleano){
 // Sobreescribe json guardado para mismo nombre y pide info para guardar si es slow save
 function saveGame (){
   localStorage.removeItem(partidaActual[0].nombre);
-  if(partidaActual[partidaActual.length - 1].firstSave){ // Si es slow save pdie nombre para guardado
+  if(partidaActual[partidaActual.length - 1].firstSave){ // Si es slow save pide nombre para guardado
       nombrePartida = prompt("Ingrese nombre de partida")
       if(nombrePartida) {
         asignarNombre(partidaActual,nombrePartida)
@@ -294,25 +294,71 @@ $botonGuardadoComo.on("click",() => {
 
 // Funcion de carga de partida
 function cargarGame(){
-  let ing = prompt("Ingrese partida a cargar"); // Carga desde prompt, cambiar a menu
-  if(localStorage.getItem(ing)){ // Busqueda de si efectivamente esta esa partida guardada
-    saltoOnChange = true; // Levantar bandera de salto para que no procce la funcion onChange
-    partidaActual = JSON.parse(localStorage.getItem(ing)); // Carga de partida
-    turnoActual = partidaActual.length - 1; // Adaptar variable de turno a la partida cargada
-    console.log(turnoActual);
-    console.log(partidaActual[partidaActual.length - 1].fen)
-    board.position(partidaActual[partidaActual.length - 1].fen) // Cambiar el board a la partida cargada
-    console.log(game.turn());
-    game = new Chess(partidaActual[partidaActual.length - 1].fen); // Cambiar el game a la partida cargada
-    movimientos = [...partidaActual[turnoActual].movimientos]; // Cargar el nuevo Board
-    $chat.text(constructorPGN(movimientos));
-    console.log(game.turn());
-    removeHighlights('black');
-    removeHighlights('white');
-    juegoIniciado = true; // Indicamos que es una partida comenzada
-  }else{
-    alert("No se ha encontrado la partida");
+  let partidas = obtenerPartidasGuardadas(); // Carga de nombres de partidas del localStorage
+
+  if (partidas.length === 0){ // Error no hay partidas en la DB
+    Swal.fire({
+      icon: 'error',
+      title: 'No hay partidas guardadas',
+    });
+    return;
   }
+
+  let optionsHTML = partidas.map(partida => { // Generacion de codigo html de opciones
+   let partidaNombre = partida.length > 20 ? partida.slice(0, 20) + '...' : partida; /* Si el nombre es demasiado
+   largo usamos un alias con finalizacion acortada con ... */
+   return `<option title="${partida}">${partidaNombre}</option>`; /* Codigo html para menu  de seleccion, en el title
+   dejamos el nombre completo para que al pasar el mouse por encima del nombre acortado aparezca el completo */
+ }).join(''); // Join para poner el codigo html como string para usar en codigo
+
+  Swal.fire({
+    title: 'Seleccione la partida a cargar',
+    html: `
+      <div style="max-height: 200px; overflow-y: auto;">
+        <select id="partida-select" class="swal2-input" style="width: 100%;">
+          ${optionsHTML}
+        </select>
+      </div>`,
+    focusConfirm: false, // Cambia el foco del boton de confirmacion al select para que no confirme sin seleccionar
+    showCancelButton: true,
+    confirmButtonText: 'Cargar',
+    cancelButtonText: 'Cancelar',
+    preConfirm: () => {
+      return document.getElementById('partida-select').value; // Devolvemos el valor seleccionado
+    }
+  }).then((result) => {
+    if(result.isConfirmed){
+      saltoOnChange = true; // Levantar bandera de salto para que no procce la funcion onChange
+      partidaActual = JSON.parse(localStorage.getItem(result.value)); // Carga de partida
+      turnoActual = partidaActual.length - 1; // Adaptar variable de turno a la partida cargada
+      console.log(turnoActual);
+      console.log(partidaActual[partidaActual.length - 1].fen)
+      board.position(partidaActual[partidaActual.length - 1].fen) // Cambiar el board a la partida cargada
+      console.log(game.turn());
+      game = new Chess(partidaActual[partidaActual.length - 1].fen); // Cambiar el game a la partida cargada
+      movimientos = [...partidaActual[turnoActual].movimientos]; // Cargar el nuevo Board
+      $chat.text(constructorPGN(movimientos));
+      console.log(game.turn());
+      removeHighlights('black');
+      removeHighlights('white');
+      juegoIniciado = true; // Indicamos que es una partida comenzada
+    }else{
+      Swal.fire({
+       icon: 'error',
+       title: 'Carga cancelada',
+       text: 'No se ha seleccionado ninguna partida para cargar.',
+      });
+    }
+  });
+}
+
+function obtenerPartidasGuardadas(){
+  let partidas = [];
+  for(let i = 0; i < localStorage.length;i++){
+    let clave = localStorage.key(i);
+    partidas.push(clave);
+  }
+  return partidas;
 }
 
 $botonCargarGame.on("click",() => {
