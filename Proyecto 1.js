@@ -352,7 +352,7 @@ function cargarGame(){
   });
 }
 
-function obtenerPartidasGuardadas(){
+function obtenerPartidasGuardadas(){ // Sacamos los nombres de partidas del localStorage
   let partidas = [];
   for(let i = 0; i < localStorage.length;i++){
     let clave = localStorage.key(i);
@@ -423,7 +423,8 @@ function onChange (oldPos, newPos){
     }
   }else{
     console.log("Salto");
-    saltoOnChange = false}
+    saltoOnChange = false // Diferencia entre saltoOnChange y hardSaltoOnChange que saltoOnChange se reinicia al final
+  }
 }
 
 // Funcion para volver atras llevando al turno anterior
@@ -466,12 +467,12 @@ function constructorPGN(movimientos){
   let pgn = "";
   let contadorTurno = 1;
   let contadorCiclos = 0;
-  for(const element of movimientos){
-    if(contadorCiclos % 2 === 0){
-      pgn = pgn + `${contadorTurno}. ${element} `;
+  for(const element of movimientos){ // Recorremos los movimientos
+    if(contadorCiclos % 2 === 0){ // Usamos el contadorCiclos para diferenciar turno de blancas y negras
+      pgn = pgn + `${contadorTurno}. ${element} `; // Movimientos de blancas con turno agregado al principio
       contadorTurno++;
     }else{
-      pgn = pgn + `${element} `;
+      pgn = pgn + `${element} `; // Movimientos de negras sin turno agregado al principio
     }
     contadorCiclos++;
   }
@@ -760,7 +761,7 @@ $botonRotacion.on("click",() => {
 });
 
 function autoRotacion(){
-  if(rotacion && !modoVs){
+  if(rotacion && !modoVs){ // No debe girar en modoVs
     let posicion = board.fen();
     let configRotacion = {
       position: posicion,
