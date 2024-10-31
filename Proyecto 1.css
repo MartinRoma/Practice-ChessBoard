@@ -15,10 +15,10 @@
 }
 #buttons-supra{
   display: flex;
-  width: 35vw;
-  height: 1vw;
+  width: 100vw;
+  height: 2vw;
   justify-content: flex-start;
-  gap: 33vw;
+  gap: 0vw;
 }
 #chat{
   display: flex;
@@ -38,10 +38,6 @@
   align-items: flex-start; /* Alinea el contenido desde la izquierda */
   font-family: "Courier New", Courier, monospace; /* Fuente de estilo consola */
   font-size: 1vw; /* Tamaño del texto */
-}
-.reverse-forward{
-  width: 1vw;
-  height: 1vw;
 }
 
 .highlight-black {
@@ -122,7 +118,8 @@ input:checked:hover + .slider {
 /* Botones Next y Previous */
 a {
   text-decoration: none;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   padding: 10px 20px;
   margin: 5px;
   font-size: 16px;
@@ -130,40 +127,69 @@ a {
   transition: background-color 0.1s, transform 0.1s, color 0.1s;
   position: relative;
   overflow: hidden;
-  color: black; /* Color de texto inicial */
+  color: black;
+  vertical-align: middle; /* Alineación vertical */
 }
 
-/* Efecto al pasar el ratón */
+/* Efecto hover */
 a:hover {
   background-color: #ccc;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   color: black;
 }
 
-/* Botón 'Previous' */
+/* Estilo para botón Previous y Next */
+.previous, .next {
+  width: 120px; /* Ancho fijo para ambos botones */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center; /* Centra el contenido horizontalmente */
+  padding-left: 0px;
+  padding-right: 0px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  gap: 5px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 20px;
+  transition: background-color 0.1s, transform 0.1s, color 0.1s;
+}
+
+/* Estilo para botón Previous */
 .previous {
   background-color: #f1f1f1;
   border: 1px solid #ccc;
   color: black;
+  padding-right: 1px;
 }
 
-/* Botón 'Next' */
+/* Estilo para botón Next */
 .next {
-  background-color: #04AA6D; /* Verde original */
+  background-color: #04AA6D;
   border: 1px solid #04AA6D;
-  color: white; /* Texto blanco inicialmente */
+  color: white;
+  padding-left: 1px;
 }
 
-/* Estado intermedio al hacer clic */
+/* Estilo para íconos */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-size: 26px;
+  margin: 0;
+  vertical-align: middle;
+  padding-left: 0px;
+}
+
+/* Estado activo */
 a:active {
-  background-color: #000 !important; /* Flash negro directo */
-  color: white !important; /* Texto blanco durante el clic */
-  transform: scale(0.9); /* Compresión ligera */
+  background-color: #000 !important;
+  color: white !important;
+  transform: scale(0.9);
   transition: background-color 0.1s, transform 0.1s, color 0.1s;
 }
 
-/* Restaurar color inmediatamente después del clic */
+/* Restaurar color original después del clic */
 a:not(:active) {
-  background-color: #04AA6D !important; /* Vuelve al verde original para 'Next' */
+  background-color: #04AA6D !important;
   color: white !important;
 }
